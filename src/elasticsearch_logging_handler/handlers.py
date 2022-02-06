@@ -1,7 +1,9 @@
 import queue
 from logging import NOTSET, Handler, LogRecord
 from logging.handlers import QueueListener
+import sys
 from typing import Union
+import traceback as tb
 
 import elasticsearch as es
 from elasticsearch.client import Elasticsearch
@@ -53,14 +55,13 @@ class ElasticHandler(Handler):
         if host is None:
             return None
 
-        es_client: Elasticsearch = es.Elasticsearch(
-            hosts=[host])
-
         try:
+            es_client: Elasticsearch = es.Elasticsearch(
+                hosts=[host])
             es_client.info()
 
             return es_client
-        except Exception as ex:
-            self.handleError(ex)
+        except Exception:
+            tb.print_exc(file=sys.stderr)
 
             return None
