@@ -10,6 +10,7 @@ pytz = "*"
 [dev-packages]
 autopep8 = "*"
 pytest = "*"
+docker = "*"
 
 [requires]
 python_version = "3.7"
