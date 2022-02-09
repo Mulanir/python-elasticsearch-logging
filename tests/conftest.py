@@ -11,7 +11,7 @@ from elasticsearch.client import Elasticsearch
 
 @pytest.fixture(scope='session')
 def elastic_host():
-    port = _get_free_port()
+    port = '9200'
 
     docker_client = docker.from_env()
     docker_image_name = 'elasticsearch:7.17.0'

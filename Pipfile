@@ -19,3 +19,4 @@ python_version = "3.7"
 [scripts]
 tests = "pytest -sx --ff"
 test_coverage = "coverage run -m pytest"
+html = "coverage html"
