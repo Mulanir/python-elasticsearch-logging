@@ -1,7 +1,7 @@
 import logging
 from time import sleep
 
-import elasticsearch as es
+import requests
 
 from src.elasticsearch_logging_handler.handlers import ElasticHandler
 
@@ -20,11 +20,11 @@ def test_write(elastic_host):
 
     sleep(3)  # Wait for batch + send latency + new index creation
 
-    es_client = es.Elasticsearch(hosts=[elastic_host])
-    result = es_client.search(index=index)
+    raw_result = requests.get(f'{elastic_host}/{index}/_search')
+    json_result = raw_result.json()
 
-    assert result['hits']['total']['value'] == 1
+    assert json_result['hits']['total']['value'] == 1
 
-    message_obj = result['hits']['hits'][0]['_source']
+    message_obj = json_result['hits']['hits'][0]['_source']
     assert message_obj['level'] == logging._levelToName[logging.ERROR]
     assert message_obj['content'] == content
