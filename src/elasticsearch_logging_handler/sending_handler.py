@@ -1,7 +1,9 @@
 
+import sys
 from datetime import datetime
 from logging import Handler, LogRecord
 import threading
+import traceback as tb
 
 from elasticsearch.client import Elasticsearch
 from elasticsearch.helpers import bulk
@@ -50,8 +52,8 @@ class ElasticSendingHandler(Handler):
                     actions, self.__message_buffer = self.__message_buffer, []
 
                 bulk(self._es_client, actions, stats_only=True)
-            except Exception as exception:
-                self.handleError(exception)
+            except Exception:
+                tb.print_exc(file=sys.stderr)
 
     def emit(self, record: LogRecord):
         """Add log message to the buffer. \n
