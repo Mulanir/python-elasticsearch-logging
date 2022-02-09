@@ -40,7 +40,7 @@ def elastic_host():
 
     host = f'http://localhost:{port}'
 
-    for _ in range(120):
+    for _ in range(60):
         if _check_ready(host):
             break
         else:
