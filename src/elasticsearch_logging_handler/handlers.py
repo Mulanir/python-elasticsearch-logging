@@ -50,7 +50,7 @@ class ElasticHandler(Handler):
         if hasattr(self, '_queue_listener'):
             self._queue_listener.stop()
 
-        if self._es_client is not None:
+        if hasattr(self, '_es_client'):
             self._es_client.close()
 
         return super().close()
