@@ -24,6 +24,8 @@ class ElasticHandler(Handler):
             setattr(self, 'emit', lambda *a, **kw: None)
 
             return
+        else:
+            self._es_client = es_client
 
         _queue = queue.Queue(maxsize=100000)
 
@@ -47,6 +49,9 @@ class ElasticHandler(Handler):
     def close(self) -> None:
         if hasattr(self, '_queue_listener'):
             self._queue_listener.stop()
+
+        if hasattr(self, '_es_client'):
+            self._es_client.close()
 
         return super().close()
 
