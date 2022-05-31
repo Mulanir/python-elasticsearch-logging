@@ -28,7 +28,7 @@ class ElasticSendingHandler(Handler):
         self.__message_buffer = []
         self.__buffer_lock = threading.Lock()
 
-        self.__timer = None
+        self.__timer: threading.Timer = None
         self.__schedule_flush()
 
     def __schedule_flush(self):
@@ -44,6 +44,7 @@ class ElasticSendingHandler(Handler):
 
         if self.__timer is not None and self.__timer.is_alive():
             self.__timer.cancel()
+
         self.__timer = None
 
         if self.__message_buffer:
