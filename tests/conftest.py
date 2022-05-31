@@ -1,12 +1,12 @@
-import os
 import time
 import logging
 import socket
 
 import pytest
 import docker
+import docker.models.containers as containers
+import docker.errors
 import elasticsearch as es
-from elasticsearch.client import Elasticsearch
 
 
 @pytest.fixture(scope='session')
@@ -14,15 +14,16 @@ def elastic_host():
     port = '9200'
 
     docker_client = docker.from_env()
-    docker_image_name = 'elasticsearch:7.17.0'
+    docker_image_name = 'elasticsearch:7.17.3'
     docker_container_name = 'elasticsearch_test_emulator'
 
+    _remove_existing_test_container(docker_client, docker_container_name)
+
     container = docker_client.containers.run(
-        docker_image_name, detach=True, ports={
-            '9200': port
-        }, environment={
-            'discovery.type': 'single-node'
-        }, name=docker_container_name)
+        docker_image_name, detach=True,
+        ports={'9200': port},
+        environment={'discovery.type': 'single-node'},
+        name=docker_container_name)
 
     for _ in range(60):
         if _check_running(docker_client, docker_container_name):
@@ -58,6 +59,17 @@ def elastic_host():
 
     container.stop()
     container.remove()
+
+
+def _remove_existing_test_container(docker_client: docker.DockerClient, container_name):
+    try:
+        existing_container: containers.Container = docker_client.containers.get(
+            container_name)
+
+        existing_container.stop()
+        existing_container.remove()
+    except docker.errors.NotFound:
+        return
 
 
 def _get_free_port():
