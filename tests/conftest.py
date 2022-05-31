@@ -1,6 +1,5 @@
 import time
 import logging
-import socket
 
 import pytest
 import docker
@@ -72,15 +71,6 @@ def _remove_existing_test_container(docker_client: docker.DockerClient, containe
         return
 
 
-def _get_free_port():
-    sock = socket.socket()
-    sock.bind(('', 0))
-    port = sock.getsockname()[1]
-    sock.close()
-
-    return port
-
-
 def _check_running(docker_client, container_name):
     RUNNING = 'running'
 
@@ -100,14 +90,3 @@ def _check_ready(host):
         return True
     except:
         return False
-
-
-@pytest.fixture
-def get_logger():
-    def inner(handler):
-        test_logger = logging.getLogger('test')
-        test_logger.addHandler(handler)
-
-        return test_logger
-
-    return inner
