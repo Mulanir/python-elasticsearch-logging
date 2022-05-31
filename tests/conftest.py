@@ -48,7 +48,7 @@ def elastic_host():
     else:
         try:
             container.stop()
-            container.remove()
+            container.remove(v=True)
         except Exception as ex:
             logging.exception(ex)
 
@@ -57,7 +57,7 @@ def elastic_host():
     yield host
 
     container.stop()
-    container.remove()
+    container.remove(v=True)
 
 
 def _remove_existing_test_container(docker_client: docker.DockerClient, container_name):
@@ -66,7 +66,7 @@ def _remove_existing_test_container(docker_client: docker.DockerClient, containe
             container_name)
 
         existing_container.stop()
-        existing_container.remove()
+        existing_container.remove(v=True)
     except docker.errors.NotFound:
         return
 
@@ -90,3 +90,19 @@ def _check_ready(host):
         return True
     except:
         return False
+
+
+@pytest.fixture
+def debug_logger():
+    test_logger = logging.getLogger('test')
+    test_logger.setLevel(logging.DEBUG)
+
+    def factory(handler):
+        test_logger.addHandler(handler)
+
+        return test_logger
+
+    yield factory
+
+    for handler in test_logger.handlers:
+        test_logger.removeHandler(handler)

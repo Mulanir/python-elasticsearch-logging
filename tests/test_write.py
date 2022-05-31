@@ -6,16 +6,14 @@ import requests
 from src.elasticsearch_logging_handler.handlers import ElasticHandler
 
 
-def test_write_text(elastic_host):
+def test_write_text(elastic_host, debug_logger):
     index = 'test-index-1'
     content = 'test exception'
 
     handler = ElasticHandler(
         elastic_host, index, level=logging.DEBUG, flush_period=0.5)
 
-    test_logger = logging.getLogger('test')
-    test_logger.setLevel(logging.DEBUG)
-    test_logger.addHandler(handler)
+    test_logger = debug_logger(handler)
     test_logger.exception(content)
 
     sleep(3)  # Wait for batch + send latency + new index creation
@@ -30,7 +28,7 @@ def test_write_text(elastic_host):
     assert message_obj['content'] == content
 
 
-def test_write_object(elastic_host):
+def test_write_object(elastic_host, debug_logger):
     index = 'test-index-2'
     content = {
         'key1': 'value1',
@@ -40,9 +38,7 @@ def test_write_object(elastic_host):
     handler = ElasticHandler(
         elastic_host, index, level=logging.DEBUG, flush_period=0.5)
 
-    test_logger = logging.getLogger('test')
-    test_logger.setLevel(logging.DEBUG)
-    test_logger.addHandler(handler)
+    test_logger = debug_logger(handler)
     test_logger.warning(content)
 
     sleep(3)  # Wait for batch + send latency + new index creation
