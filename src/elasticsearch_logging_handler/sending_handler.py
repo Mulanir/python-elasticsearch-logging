@@ -28,7 +28,7 @@ class ElasticSendingHandler(Handler):
         self.__message_buffer = []
         self.__buffer_lock = threading.Lock()
 
-        self.__timer = None
+        self.__timer: threading.Timer = None
         self.__schedule_flush()
 
     def __schedule_flush(self):
@@ -44,6 +44,7 @@ class ElasticSendingHandler(Handler):
 
         if self.__timer is not None and self.__timer.is_alive():
             self.__timer.cancel()
+
         self.__timer = None
 
         if self.__message_buffer:
@@ -73,7 +74,7 @@ class ElasticSendingHandler(Handler):
         timestamp_dt: datetime = datetime.fromtimestamp(record.created)
 
         if self._timezone:
-            tz_info = pytz.timezone('Europe/Kiev')
+            tz_info = pytz.timezone(self._timezone)
             timestamp_dt: datetime = timestamp_dt.astimezone(tz_info)
 
         timestamp_iso = timestamp_dt.isoformat()

@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-elasticsearch = "*"
+elasticsearch = "<8.0.0"
 pytz = "*"
 
 [dev-packages]

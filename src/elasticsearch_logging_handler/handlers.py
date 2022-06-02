@@ -1,3 +1,4 @@
+import logging
 import queue
 from logging import NOTSET, Handler, LogRecord
 from logging.handlers import QueueListener
@@ -6,14 +7,13 @@ from typing import Union
 import traceback as tb
 
 import elasticsearch as es
-from elasticsearch.client import Elasticsearch
 
 from .sending_handler import ElasticSendingHandler
 from .queue_handler import ObjectQueueHandler
 
 
 class ElasticHandler(Handler):
-    def __init__(self, host, index, level=NOTSET,
+    def __init__(self, host: str, index: str, level=NOTSET,
                  flush_period: float = 1, batch_size: int = 1000,
                  timezone: str = None) -> None:
         super().__init__(level)
@@ -55,18 +55,22 @@ class ElasticHandler(Handler):
 
         return super().close()
 
-    def _create_elastic_client(self, host) -> Union[Elasticsearch, None]:
+    def _create_elastic_client(self, host) -> Union[es.Elasticsearch, None]:
         # Check all elastic configss are not None
         if host is None:
             return None
 
         try:
-            es_client: Elasticsearch = es.Elasticsearch(
+            es_client: es.Elasticsearch = es.Elasticsearch(
                 hosts=[host])
             es_client.info()
 
             return es_client
-        except Exception:
+        except es.exceptions.ConnectionError:
+            logging.error("Can't connect to Elasticsearch host - {host}")
+
+            return None
+        except:
             tb.print_exc(file=sys.stderr)
 
             return None

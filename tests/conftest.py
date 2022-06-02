@@ -1,28 +1,28 @@
-import os
 import time
 import logging
-import socket
 
 import pytest
 import docker
+import docker.models.containers as containers
+import docker.errors
 import elasticsearch as es
-from elasticsearch.client import Elasticsearch
 
 
 @pytest.fixture(scope='session')
-def elastic_host():
+def elastic_service():
     port = '9200'
 
     docker_client = docker.from_env()
-    docker_image_name = 'elasticsearch:7.17.0'
+    docker_image_name = 'elasticsearch:7.17.3'
     docker_container_name = 'elasticsearch_test_emulator'
 
+    _remove_existing_test_container(docker_client, docker_container_name)
+
     container = docker_client.containers.run(
-        docker_image_name, detach=True, ports={
-            '9200': port
-        }, environment={
-            'discovery.type': 'single-node'
-        }, name=docker_container_name)
+        docker_image_name, detach=True,
+        ports={'9200': port},
+        environment={'discovery.type': 'single-node'},
+        name=docker_container_name)
 
     for _ in range(60):
         if _check_running(docker_client, docker_container_name):
@@ -48,7 +48,7 @@ def elastic_host():
     else:
         try:
             container.stop()
-            container.remove()
+            container.remove(v=True)
         except Exception as ex:
             logging.exception(ex)
 
@@ -57,16 +57,18 @@ def elastic_host():
     yield host
 
     container.stop()
-    container.remove()
+    container.remove(v=True)
 
 
-def _get_free_port():
-    sock = socket.socket()
-    sock.bind(('', 0))
-    port = sock.getsockname()[1]
-    sock.close()
+def _remove_existing_test_container(docker_client: docker.DockerClient, container_name):
+    try:
+        existing_container: containers.Container = docker_client.containers.get(
+            container_name)
 
-    return port
+        existing_container.stop()
+        existing_container.remove(v=True)
+    except docker.errors.NotFound:
+        return
 
 
 def _check_running(docker_client, container_name):
@@ -90,12 +92,26 @@ def _check_ready(host):
         return False
 
 
+@pytest.fixture(scope='function')
+def elastic_host(elastic_service):
+    es_client: es.Elasticsearch = es.Elasticsearch(
+        hosts=[elastic_service])
+
+    yield elastic_service
+
+    es_client.indices.delete(index='test-index', ignore=[400, 404])
+
+
 @pytest.fixture
-def get_logger():
-    def inner(handler):
-        test_logger = logging.getLogger('test')
+def debug_logger():
+    test_logger = logging.getLogger('test')
+    test_logger.setLevel(logging.DEBUG)
+
+    def factory(handler):
         test_logger.addHandler(handler)
 
         return test_logger
 
-    return inner
+    yield factory
+
+    test_logger.handlers.clear()
