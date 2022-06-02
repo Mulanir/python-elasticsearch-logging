@@ -74,7 +74,7 @@ class ElasticSendingHandler(Handler):
         timestamp_dt: datetime = datetime.fromtimestamp(record.created)
 
         if self._timezone:
-            tz_info = pytz.timezone('Europe/Kiev')
+            tz_info = pytz.timezone(self._timezone)
             timestamp_dt: datetime = timestamp_dt.astimezone(tz_info)
 
         timestamp_iso = timestamp_dt.isoformat()
