@@ -7,7 +7,7 @@ from src.elasticsearch_logging_handler.handlers import ElasticHandler
 
 
 def test_write_text(elastic_host, debug_logger):
-    index = 'test-index-1'
+    index = 'test-index'
     content = 'test exception'
 
     handler = ElasticHandler(
@@ -29,7 +29,7 @@ def test_write_text(elastic_host, debug_logger):
 
 
 def test_write_object(elastic_host, debug_logger):
-    index = 'test-index-2'
+    index = 'test-index'
     content = {
         'key1': 'value1',
         'key2': 'value2'

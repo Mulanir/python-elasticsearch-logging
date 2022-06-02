@@ -9,7 +9,7 @@ import elasticsearch as es
 
 
 @pytest.fixture(scope='session')
-def elastic_host():
+def elastic_service():
     port = '9200'
 
     docker_client = docker.from_env()
@@ -92,6 +92,16 @@ def _check_ready(host):
         return False
 
 
+@pytest.fixture(scope='function')
+def elastic_host(elastic_service):
+    es_client: es.Elasticsearch = es.Elasticsearch(
+        hosts=[elastic_service])
+
+    yield elastic_service
+
+    es_client.indices.delete(index='test-index', ignore=[400, 404])
+
+
 @pytest.fixture
 def debug_logger():
     test_logger = logging.getLogger('test')
@@ -104,5 +114,4 @@ def debug_logger():
 
     yield factory
 
-    for handler in test_logger.handlers:
-        test_logger.removeHandler(handler)
+    test_logger.handlers.clear()
