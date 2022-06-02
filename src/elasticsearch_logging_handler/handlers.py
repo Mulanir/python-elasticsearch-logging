@@ -13,7 +13,7 @@ from .queue_handler import ObjectQueueHandler
 
 
 class ElasticHandler(Handler):
-    def __init__(self, host, index, level=NOTSET,
+    def __init__(self, host: str, index: str, level=NOTSET,
                  flush_period: float = 1, batch_size: int = 1000,
                  timezone: str = None) -> None:
         super().__init__(level)
