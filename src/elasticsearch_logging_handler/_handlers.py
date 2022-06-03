@@ -8,8 +8,8 @@ import traceback as tb
 
 import elasticsearch as es
 
-from .sending_handler import ElasticSendingHandler
-from .queue_handler import ObjectQueueHandler
+from ._sending_handler import ElasticSendingHandler
+from ._queue_handler import ObjectQueueHandler
 
 
 class ElasticHandler(Handler):

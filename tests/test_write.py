@@ -3,7 +3,7 @@ from time import sleep
 
 import requests
 
-from src.elasticsearch_logging_handler.handlers import ElasticHandler
+from src.elasticsearch_logging_handler import ElasticHandler
 
 
 def test_write_text(elastic_host, debug_logger):
