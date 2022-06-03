@@ -1,6 +1,7 @@
 # elasticsearch-logging-handler
 
 This is a minimalistic Elasticsearch logging handler for python. This handler uses only url as an authentication method. For more robust authentication consider [CMRESHandler](https://github.com/cmanaha/python-elasticsearch-logger).
+Package on PyPI - https://pypi.org/project/elasticsearch-logging-handler/
 
 Parameters for **ElasticHandler**:
 | Name | Type | Required | Default | Description | Example | 
