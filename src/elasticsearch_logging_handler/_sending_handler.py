@@ -5,14 +5,14 @@ from logging import Handler, LogRecord
 import threading
 import traceback as tb
 
-from elasticsearch.client import Elasticsearch
-from elasticsearch.helpers import bulk
+import elasticsearch as es
+import elasticsearch.helpers as es_helpers
 import pytz
 
 
 class ElasticSendingHandler(Handler):
     def __init__(self, level,
-                 es_client: Elasticsearch, index: str,
+                 es_client: es.Elasticsearch, index: str,
                  flush_period: float = 1,
                  batch_size: int = 1000,
                  timezone: str = None) -> None:
@@ -40,7 +40,7 @@ class ElasticSendingHandler(Handler):
             self.__timer.start()
 
     def flush(self):
-        """Send all messages from buffer to Elasticsearch."""
+        """Send all messages from buffer to es.Elasticsearch."""
 
         if self.__timer is not None and self.__timer.is_alive():
             self.__timer.cancel()
@@ -52,7 +52,7 @@ class ElasticSendingHandler(Handler):
                 with self.__buffer_lock:
                     actions, self.__message_buffer = self.__message_buffer, []
 
-                bulk(self._es_client, actions, stats_only=True)
+                es_helpers.bulk(self._es_client, actions, stats_only=True)
             except Exception:
                 tb.print_exc(file=sys.stderr)
 
